@@ -1,7 +1,7 @@
 require 'statsd-instrument'
 class UsersController < ApplicationController
   before_action :set_user, only: [:show, :edit, :update, :destroy]
-  StatsD.backend = StatsD::Instrument::Backends::UDPBackend.new(" http://chronograf.staging.k8s.nestaway.xyz:31502", :statsd)
+  StatsD.backend = StatsD::Instrument::Backends::UDPBackend.new("http://chronograf.staging.k8s.nestaway.xyz:31502", :statsd)
   # Set up a global Statsd client for a server on localhost:9125
   # $statsd = Statsd.new 'localhost', 8125
   
