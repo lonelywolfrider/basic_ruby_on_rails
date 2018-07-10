@@ -1,9 +1,19 @@
+require 'statsd-instrument'
 class UsersController < ApplicationController
   before_action :set_user, only: [:show, :edit, :update, :destroy]
-
+  StatsD.backend = StatsD::Instrument::Backends::UDPBackend.new("localhost:8125", :statsd)
+  # Set up a global Statsd client for a server on localhost:9125
+  # $statsd = Statsd.new 'localhost', 8125
+  
   # GET /users
   # GET /users.json
   def index
+    # Send some stats
+    # $statsd.increment 'prudhvi'
+    puts StatsD.increment('GoogleBase.insert')
+    StatsD.measure('GoogleBase.insert', 2.55)
+    # $statsd.measure
+    
     @users = User.all
   end
 
@@ -24,15 +34,16 @@ class UsersController < ApplicationController
   # POST /users
   # POST /users.json
   def create
-    @user = User.new(user_params)
-
-    respond_to do |format|
-      if @user.save
-        format.html { redirect_to @user, notice: 'User was successfully created.' }
-        format.json { render :show, status: :created, location: @user }
-      else
-        format.html { render :new }
-        format.json { render json: @user.errors, status: :unprocessable_entity }
+    StatsD.measure('createuser') do 
+      @user = User.new(user_params)
+      respond_to do |format|
+        if @user.save
+          format.html { redirect_to @user, notice: 'User was successfully created.' }
+          format.json { render :show, status: :created, location: @user }
+        else
+          format.html { render :new }
+          format.json { render json: @user.errors, status: :unprocessable_entity }
+        end
       end
     end
   end
